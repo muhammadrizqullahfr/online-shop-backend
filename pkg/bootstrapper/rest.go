@@ -83,7 +83,7 @@ func (s *Server) initInternalRoute() (keyWithJWT *echo.Group, v1 *echo.Group) {
 
 	api := s.e.Group("/api")
 	s.e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000", "https://mart-volt-shop.vercel.app"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://riky-shop.vercel.app/"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "ngrok-skip-browser-warning"},
 		AllowCredentials: true,
