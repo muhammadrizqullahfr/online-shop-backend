@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	uploadBucket    = "onlinestore"
+	uploadBucket    = "e-commerce"
 	uploadDir       = "uploads"
 	maxUploadSize   = 5 * 1024 * 1024
 	imageMimePrefix = "image/"

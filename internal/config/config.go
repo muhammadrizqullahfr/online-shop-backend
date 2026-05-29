@@ -29,19 +29,21 @@ type Config struct {
 	JwtSecretKey        string `validate:"required"`
 	SupabaseURL         string `validate:"required"`
 	SupabaseKey         string `validate:"required"`
-	GoogleClientID      string `validate:"required"`
-	GoogleSecret        string `validate:"required"`
-	GoogleCallbackUrl   string `validate:"required"`
-	GithubClientID      string `validate:"required"`
-	GithubSecret        string `validate:"required"`
-	GithubCallbackUrl   string `validate:"required"`
+	GoogleClientID      string
+	GoogleSecret        string
+	GoogleCallbackUrl   string
+	GithubClientID      string
+	GithubSecret        string
+	GithubCallbackUrl   string
 	FrontendCallbackURL string `validate:"required,url"`
 	AdminPass           string `validate:"required"`
 	AdminEmail          string `validate:"required"`
-	XenditSecretKey     string `validate:"required"`
-	MailerAPIKey        string `validate:"required"`
+	XenditSecretKey     string
+	MailerAPIKey        string
 	MailerInboxID       string
 	MailerDriver        string
+	RecommendationURL    string
+	RecommendationAPIKey string
 	RetryConfig
 }
 
@@ -84,6 +86,8 @@ func LoadConfig() *Config {
 		MailerAPIKey:        os.Getenv("MAILER_API_KEY"),
 		MailerInboxID:       os.Getenv("MAILER_INBOX_ID"),
 		MailerDriver:        os.Getenv("MAILER_DRIVER"),
+		RecommendationURL:    os.Getenv("RECOMMENDATION_URL"),
+		RecommendationAPIKey: os.Getenv("RECOMMENDATION_API_KEY"),
 		RetryConfig: RetryConfig{
 			Max:   maxRetry,
 			Delay: delay,

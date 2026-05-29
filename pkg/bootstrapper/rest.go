@@ -19,6 +19,8 @@ import (
 	pp "github.com/RakaMurdiarta/online-shop-system/internal/modules/products/provider"
 	productRepoImpl "github.com/RakaMurdiarta/online-shop-system/internal/modules/products/repository/impl"
 	productServiceImpl "github.com/RakaMurdiarta/online-shop-system/internal/modules/products/services/impl"
+	"github.com/RakaMurdiarta/online-shop-system/internal/modules/recommendation/client"
+	"github.com/RakaMurdiarta/online-shop-system/internal/modules/recommendation/provider"
 	usp "github.com/RakaMurdiarta/online-shop-system/internal/modules/upload/provider"
 	up "github.com/RakaMurdiarta/online-shop-system/internal/modules/users/provider"
 	userRepoImpl "github.com/RakaMurdiarta/online-shop-system/internal/modules/users/repository/impl"
@@ -48,6 +50,8 @@ func (s *Server) InitAPI() {
 	private, public := s.initInternalRoute()
 	xenditClient := shared.NewXenditClient(s.conf.XenditSecretKey)
 
+	recClient := client.NewRecommendationClient(s.conf)
+
 	userRepo := userRepoImpl.NewUserRepository(txManager)
 	categoryRepo := productRepoImpl.NewCategoryRepository(txManager)
 	productRepo := productRepoImpl.NewProductRepository(txManager)
@@ -55,7 +59,7 @@ func (s *Server) InitAPI() {
 	orderRepo := orderRepoImpl.NewNewOrderRepository(txManager)
 
 	categoryService := productServiceImpl.NewCategoryService(categoryRepo, txManager, s.conf)
-	productService := productServiceImpl.NewProductService(productRepo, categoryRepo)
+	productService := productServiceImpl.NewProductService(productRepo, categoryRepo, recClient)
 	cartService := cartServiceImpl.NewNewCartService(cartRepo, productRepo)
 	orderService := orderServiceImpl.NewOrderService(orderRepo, xenditClient)
 	orderCallbackService := orderServiceImpl.NewOrderCallbackService(orderRepo, xenditClient)
@@ -70,6 +74,8 @@ func (s *Server) InitAPI() {
 	up.UserProvider(private, txManager, s.conf, userService)
 	usp.UploadProvider(private, s.storageClient)
 
+	provider.RecommendationProvider(s.e, s.DB, recClient)
+
 	mailerService := mp.MailerProvider(s.mailTransport)
 	fp.FeedbackProvider(txManager, public, mailerService)
 }
@@ -83,7 +89,7 @@ func (s *Server) initInternalRoute() (keyWithJWT *echo.Group, v1 *echo.Group) {
 
 	api := s.e.Group("/api")
 	s.e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000", "https://riky-shop.vercel.app"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://mart-volt-shop.vercel.app"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "ngrok-skip-browser-warning"},
 		AllowCredentials: true,

@@ -12,6 +12,7 @@ import (
 	"github.com/RakaMurdiarta/online-shop-system/internal/modules/products/delivery"
 	"github.com/RakaMurdiarta/online-shop-system/internal/modules/products/repository"
 	"github.com/RakaMurdiarta/online-shop-system/internal/modules/products/services"
+	"github.com/RakaMurdiarta/online-shop-system/internal/modules/recommendation/client"
 	"github.com/RakaMurdiarta/online-shop-system/pkg/common/response"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -20,10 +21,11 @@ import (
 type newProductServiceImpl struct {
 	repo         repository.ProductRepository
 	categoryRepo categoryRepo.CategoryRepository
+	recClient    client.RecommendationClient
 }
 
-func NewProductService(repo repository.ProductRepository, catRepo categoryRepo.CategoryRepository) services.ProductService {
-	return &newProductServiceImpl{repo: repo, categoryRepo: catRepo}
+func NewProductService(repo repository.ProductRepository, catRepo categoryRepo.CategoryRepository, recClient client.RecommendationClient) services.ProductService {
+	return &newProductServiceImpl{repo: repo, categoryRepo: catRepo, recClient: recClient}
 }
 
 func (s *newProductServiceImpl) resolveCategoryID(ctx context.Context, slug string) (uint, error) {
@@ -86,6 +88,12 @@ func (s *newProductServiceImpl) Create(ctx context.Context, req *delivery.Create
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if s.recClient != nil {
+		go func(p models.Product) {
+			_ = s.recClient.SyncProductToFastAPI(p)
+		}(*product)
 	}
 
 	return s.GetByID(ctx, product.ID)
